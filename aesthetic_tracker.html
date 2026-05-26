@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aesthetic Physique Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
+            --bg-card: #16161f;
+            --bg-input: #1e1e2a;
+            --bg-hover: #252530;
+            --accent-primary: #00d4aa;
+            --accent-secondary: #00b894;
+            --accent-glow: rgba(0, 212, 170, 0.15);
+            --accent-glow-strong: rgba(0, 212, 170, 0.3);
+            --text-primary: #f0f0f5;
+            --text-secondary: #a0a0b0;
+            --text-muted: #6b6b7b;
+            --text-dim: #4a4a5a;
+            --border-subtle: rgba(255,255,255,0.06);
+            --border-accent: rgba(0, 212, 170, 0.2);
+            --danger: #ff4757;
+            --danger-soft: rgba(255, 71, 87, 0.1);
+            --warning: #ffa502;
+            --warning-soft: rgba(255, 165, 2, 0.1);
+            --info: #74b9ff;
+            --success: #00d4aa;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+            --shadow-glow: 0 0 20px var(--accent-glow);
+            --transition-fast: 0.15s ease;
+            --transition-base: 0.25s ease;
+            --transition-slow: 0.4s ease;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+        .app-container { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; padding-bottom: 80px; }
+        .header { position: sticky; top: 0; z-index: 100; background: rgba(10, 10, 15, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-subtle); padding: 16px 20px; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .logo { font-weight: 800; font-size: 1.1rem; letter-spacing: -0.5px; background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .header-actions { display: flex; gap: 8px; }
+        .icon-btn { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition-fast); font-size: 1rem; }
+        .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-accent); }
+        .icon-btn.active { background: var(--accent-glow); color: var(--accent-primary); border-color: var(--border-accent); }
+        .date-nav { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 8px 0; }
+        .date-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; transition: var(--transition-fast); }
+        .date-btn:hover { background: var(--bg-hover); color: var(--accent-primary); }
+        .current-date { text-align: center; min-width: 140px; }
+        .current-date .day-name { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-primary); }
+        .current-date .date-full { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+        .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 16px 20px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px 10px; text-align: center; transition: var(--transition-base); }
+        .stat-card:hover { border-color: var(--border-accent); transform: translateY(-1px); }
+        .stat-value { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 700; color: var(--accent-primary); line-height: 1; }
+        .stat-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-top: 6px; }
+        .progress-ring-container { display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .progress-ring-wrapper { position: relative; width: 160px; height: 160px; }
+        .progress-ring-svg { transform: rotate(-90deg); }
+        .progress-ring-bg { fill: none; stroke: var(--bg-tertiary); stroke-width: 8; }
+        .progress-ring-fill { fill: none; stroke: var(--accent-primary); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; filter: drop-shadow(0 0 6px var(--accent-glow-strong)); }
+        .progress-ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        .progress-percent { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 800; color: var(--text-primary); line-height: 1; }
+        .progress-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+        .day-selector { padding: 0 20px 16px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+        .day-selector::-webkit-scrollbar { display: none; }
+        .day-pill { flex-shrink: 0; padding: 10px 18px; border-radius: 100px; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: var(--transition-base); white-space: nowrap; position: relative; }
+        .day-pill:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .day-pill.active { background: var(--accent-primary); color: var(--bg-primary); border-color: var(--accent-primary); box-shadow: 0 4px 16px var(--accent-glow-strong); }
+        .day-pill .rest-badge { position: absolute; top: -4px; right: -4px; width: 16px; height: 16px; background: var(--warning); border-radius: 50%; font-size: 0.6rem; display: flex; align-items: center; justify-content: center; color: var(--bg-primary); font-weight: 800; }
+        .section-header { padding: 20px 20px 12px; display: flex; justify-content: space-between; align-items: center; }
+        .section-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-secondary); }
+        .section-count { font-size: 0.75rem; color: var(--text-muted); background: var(--bg-tertiary); padding: 4px 10px; border-radius: 100px; font-weight: 600; }
+        .exercise-list { padding: 0 20px; display: flex; flex-direction: column; gap: 12px; }
+        .exercise-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); overflow: hidden; transition: var(--transition-base); }
+        .exercise-card:hover { border-color: var(--border-accent); }
+        .exercise-card.completed { border-color: rgba(0, 212, 170, 0.3); background: linear-gradient(135deg, var(--bg-card) 0%, rgba(0, 212, 170, 0.03) 100%); }
+        .exercise-card.resting { border-color: var(--warning); box-shadow: 0 0 20px rgba(255, 165, 2, 0.1); }
+        .exercise-header { padding: 16px 18px; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
+        .exercise-checkbox { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--text-dim); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; transition: var(--transition-fast); cursor: pointer; }
+        .exercise-checkbox:hover { border-color: var(--accent-primary); }
+        .exercise-checkbox.checked { background: var(--accent-primary); border-color: var(--accent-primary); color: var(--bg-primary); }
+        .exercise-checkbox.checked svg { display: block; }
+        .exercise-checkbox svg { display: none; width: 14px; height: 14px; }
+        .exercise-info { flex: 1; min-width: 0; }
+        .exercise-name { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
+        .exercise-meta { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+        .meta-tag { font-size: 0.7rem; font-weight: 600; padding: 3px 8px; border-radius: 6px; background: var(--bg-tertiary); color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+        .meta-tag.highlight { background: var(--accent-glow); color: var(--accent-primary); }
+        .exercise-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .action-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border-subtle); background: var(--bg-tertiary); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem; transition: var(--transition-fast); }
+        .action-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .action-btn.timer-btn { position: relative; }
+        .action-btn.timer-btn.active { background: var(--warning-soft); color: var(--warning); border-color: var(--warning); animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .timer-badge { position: absolute; top: -6px; right: -6px; background: var(--warning); color: var(--bg-primary); font-size: 0.6rem; font-weight: 800; padding: 2px 5px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; }
+        .exercise-details { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .exercise-details.open { max-height: 800px; }
+        .details-inner { padding: 0 18px 18px; border-top: 1px solid var(--border-subtle); margin-top: 0; padding-top: 16px; }
+        .sets-header { display: grid; grid-template-columns: 40px 1fr 1fr 1fr 50px; gap: 8px; margin-bottom: 10px; padding: 0 4px; }
+        .sets-header span { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-dim); text-align: center; }
+        .sets-header span:first-child { text-align: left; }
+        .set-row { display: grid; grid-template-columns: 40px 1fr 1fr 1fr 50px; gap: 8px; align-items: center; margin-bottom: 8px; }
+        .set-number { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 600; color: var(--text-dim); text-align: center; }
+        .set-number.done { color: var(--accent-primary); }
+        .input-group { position: relative; }
+        .input-group label { position: absolute; top: -16px; left: 0; font-size: 0.6rem; color: var(--text-dim); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .num-input { width: 100%; background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 8px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-weight: 600; text-align: center; transition: var(--transition-fast); outline: none; }
+        .num-input:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 3px var(--accent-glow); }
+        .num-input::placeholder { color: var(--text-dim); font-weight: 400; }
+        .set-check { width: 28px; height: 28px; border-radius: 6px; border: 2px solid var(--text-dim); background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition-fast); margin: 0 auto; }
+        .set-check:hover { border-color: var(--accent-primary); }
+        .set-check.checked { background: var(--accent-primary); border-color: var(--accent-primary); }
+        .set-check.checked svg { display: block; }
+        .set-check svg { display: none; width: 14px; height: 14px; color: var(--bg-primary); }
+        .quick-controls { display: flex; gap: 6px; margin-bottom: 14px; }
+        .quick-btn { flex: 1; padding: 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); background: var(--bg-tertiary); color: var(--text-secondary); font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: var(--transition-fast); text-transform: uppercase; letter-spacing: 0.5px; }
+        .quick-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .quick-btn.primary { background: var(--accent-primary); color: var(--bg-primary); border-color: var(--accent-primary); }
+        .quick-btn.primary:hover { background: var(--accent-secondary); }
+        .alt-section { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-subtle); }
+        .alt-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 8px; }
+        .alt-select { width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); background: var(--bg-input); color: var(--text-primary); font-size: 0.85rem; font-family: 'Inter', sans-serif; cursor: pointer; outline: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b7b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+        .alt-select:focus { border-color: var(--accent-primary); }
+        .notes-area { margin-top: 14px; }
+        .notes-area textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 12px; color: var(--text-primary); font-size: 0.85rem; font-family: 'Inter', sans-serif; resize: none; outline: none; min-height: 60px; }
+        .notes-area textarea:focus { border-color: var(--accent-primary); }
+        .notes-area textarea::placeholder { color: var(--text-dim); }
+        .timer-overlay { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-secondary); border-top: 1px solid var(--border-accent); padding: 16px 20px; z-index: 200; transform: translateY(100%); transition: transform 0.3s ease; box-shadow: 0 -4px 24px rgba(0,0,0,0.5); }
+        .timer-overlay.active { transform: translateY(0); }
+        .timer-display { text-align: center; margin-bottom: 12px; }
+        .timer-time { font-family: 'JetBrains Mono', monospace; font-size: 2.5rem; font-weight: 800; color: var(--accent-primary); line-height: 1; }
+        .timer-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+        .timer-controls { display: flex; gap: 10px; justify-content: center; }
+        .timer-btn { padding: 10px 24px; border-radius: var(--radius-md); border: none; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: var(--transition-fast); text-transform: uppercase; letter-spacing: 0.5px; }
+        .timer-btn.start { background: var(--accent-primary); color: var(--bg-primary); }
+        .timer-btn.start:hover { background: var(--accent-secondary); }
+        .timer-btn.stop { background: var(--danger-soft); color: var(--danger); border: 1px solid var(--danger); }
+        .timer-btn.reset { background: var(--bg-tertiary); color: var(--text-secondary); border: 1px solid var(--border-subtle); }
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: rgba(18, 18, 26, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border-subtle); display: grid; grid-template-columns: repeat(4, 1fr); z-index: 150; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0; cursor: pointer; transition: var(--transition-fast); border: none; background: none; color: var(--text-muted); gap: 4px; }
+        .nav-item:hover { color: var(--text-secondary); }
+        .nav-item.active { color: var(--accent-primary); }
+        .nav-item svg { width: 22px; height: 22px; }
+        .nav-item span { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .view { display: none; animation: fadeIn 0.3s ease; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .history-list { padding: 0 20px; display: flex; flex-direction: column; gap: 12px; }
+        .history-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 16px 18px; transition: var(--transition-base); }
+        .history-card:hover { border-color: var(--border-accent); }
+        .history-date { font-size: 0.8rem; font-weight: 700; color: var(--accent-primary); margin-bottom: 4px; }
+        .history-day { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px; }
+        .history-stats { display: flex; gap: 16px; }
+        .history-stat { display: flex; flex-direction: column; }
+        .history-stat-value { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--text-primary); }
+        .history-stat-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+        .chart-container { padding: 20px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); margin: 0 20px 16px; }
+        .chart-title { font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; }
+        .chart-bar-group { display: flex; align-items: flex-end; gap: 6px; height: 120px; margin-bottom: 8px; }
+        .chart-bar { flex: 1; background: var(--accent-primary); border-radius: 4px 4px 0 0; min-width: 8px; transition: height 0.5s ease; position: relative; opacity: 0.7; }
+        .chart-bar:hover { opacity: 1; }
+        .chart-bar-label { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 0.55rem; color: var(--text-dim); white-space: nowrap; font-family: 'JetBrains Mono', monospace; }
+        .chart-bar-value { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 0.6rem; color: var(--accent-primary); font-weight: 700; font-family: 'JetBrains Mono', monospace; opacity: 0; transition: opacity 0.2s; }
+        .chart-bar:hover .chart-bar-value { opacity: 1; }
+        .settings-list { padding: 0 20px; display: flex; flex-direction: column; gap: 8px; }
+        .setting-item { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 16px 18px; display: flex; justify-content: space-between; align-items: center; transition: var(--transition-base); }
+        .setting-item:hover { border-color: var(--border-accent); }
+        .setting-info h3 { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+        .setting-info p { font-size: 0.75rem; color: var(--text-muted); }
+        .toggle { width: 48px; height: 26px; background: var(--bg-tertiary); border-radius: 13px; position: relative; cursor: pointer; transition: var(--transition-fast); border: 1px solid var(--border-subtle); }
+        .toggle.on { background: var(--accent-primary); border-color: var(--accent-primary); }
+        .toggle-knob { width: 20px; height: 20px; background: var(--text-primary); border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: var(--transition-fast); box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+        .toggle.on .toggle-knob { left: 24px; background: var(--bg-primary); }
+        .danger-btn { width: 100%; padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--danger); background: var(--danger-soft); color: var(--danger); font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: var(--transition-fast); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 8px; }
+        .danger-btn:hover { background: var(--danger); color: var(--bg-primary); }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 300; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--bg-secondary); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 24px; width: 100%; max-width: 360px; animation: modalIn 0.3s ease; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .modal h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+        .modal p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 10px; }
+        .modal-actions button { flex: 1; padding: 12px; border-radius: var(--radius-md); border: none; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+        .modal-actions .cancel { background: var(--bg-tertiary); color: var(--text-secondary); border: 1px solid var(--border-subtle); }
+        .modal-actions .confirm { background: var(--danger); color: white; }
+        .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 400; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+        .toast { background: var(--bg-secondary); border: 1px solid var(--border-accent); border-radius: var(--radius-md); padding: 12px 20px; color: var(--accent-primary); font-size: 0.85rem; font-weight: 600; box-shadow: var(--shadow-md); animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards; pointer-events: auto; }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes toastOut { to { opacity: 0; transform: translateY(-10px); } }
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.3; }
+        .empty-state p { font-size: 0.85rem; }
+        @media (min-width: 481px) { .app-container { border-left: 1px solid var(--border-subtle); border-right: 1px solid var(--border-subtle); } }
+        input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-top">
+                <div class="logo">Aesthetic Tracker</div>
+                <div class="header-actions">
+                    <button class="icon-btn" id="exportBtn" title="Export Data">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </button>
+                    <button class="icon-btn" id="importBtn" title="Import Data">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="date-nav">
+                <button class="date-btn" id="prevDate">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <div class="current-date">
+                    <div class="day-name" id="dayName">Monday</div>
+                    <div class="date-full" id="dateFull">May 26, 2026</div>
+                </div>
+                <button class="date-btn" id="nextDate">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <div class="view active" id="workoutView">
+            <div class="stats-bar">
+                <div class="stat-card"><div class="stat-value" id="statSets">0</div><div class="stat-label">Sets Done</div></div>
+                <div class="stat-card"><div class="stat-value" id="statVolume">0</div><div class="stat-label">Volume (kg)</div></div>
+                <div class="stat-card"><div class="stat-value" id="statTime">0</div><div class="stat-label">Minutes</div></div>
+            </div>
+            <div class="progress-ring-container">
+                <div class="progress-ring-wrapper">
+                    <svg class="progress-ring-svg" width="160" height="160">
+                        <circle class="progress-ring-bg" cx="80" cy="80" r="72"/>
+                        <circle class="progress-ring-fill" id="progressRing" cx="80" cy="80" r="72" stroke-dasharray="452.39" stroke-dashoffset="452.39"/>
+                    </svg>
+                    <div class="progress-ring-text">
+                        <div class="progress-percent" id="progressPercent">0%</div>
+                        <div class="progress-label">Completed</div>
+                    </div>
+                </div>
+            </div>
+            <div class="day-selector" id="daySelector"></div>
+            <div class="section-header">
+                <span class="section-title">Exercises</span>
+                <span class="section-count" id="exerciseCount">0 exercises</span>
+            </div>
+            <div class="exercise-list" id="exerciseList"></div>
+        </div>
+
+        <div class="view" id="historyView">
+            <div class="section-header"><span class="section-title">Workout History</span></div>
+            <div class="history-list" id="historyList"></div>
+        </div>
+
+        <div class="view" id="analyticsView">
+            <div class="section-header"><span class="section-title">Progress Analytics</span></div>
+            <div class="chart-container">
+                <div class="chart-title">Weekly Volume (kg)</div>
+                <div class="chart-bar-group" id="volumeChart"></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Sets Completed Per Day</div>
+                <div class="chart-bar-group" id="setsChart"></div>
+            </div>
+            <div class="stats-bar" style="margin-top: 8px;">
+                <div class="stat-card"><div class="stat-value" id="totalWorkouts">0</div><div class="stat-label">Total Workouts</div></div>
+                <div class="stat-card"><div class="stat-value" id="totalSets">0</div><div class="stat-label">Total Sets</div></div>
+                <div class="stat-card"><div class="stat-value" id="totalVolume">0</div><div class="stat-label">Total Volume</div></div>
+            </div>
+        </div>
+
+        <div class="view" id="settingsView">
+            <div class="section-header"><span class="section-title">Settings</span></div>
+            <div class="settings-list">
+                <div class="setting-item">
+                    <div class="setting-info"><h3>Auto-save</h3><p>Save data automatically after each set</p></div>
+                    <div class="toggle on" id="autosaveToggle"><div class="toggle-knob"></div></div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info"><h3>Sound Alerts</h3><p>Play sound when rest timer completes</p></div>
+                    <div class="toggle on" id="soundToggle"><div class="toggle-knob"></div></div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info"><h3>Vibration</h3><p>Haptic feedback on mobile devices</p></div>
+                    <div class="toggle" id="vibrateToggle"><div class="toggle-knob"></div></div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info"><h3>Dark Mode</h3><p>Always use dark theme</p></div>
+                    <div class="toggle on" id="darkToggle"><div class="toggle-knob"></div></div>
+                </div>
+                <button class="danger-btn" id="clearDataBtn">Clear All Data</button>
+            </div>
+        </div>
+
+        <div class="timer-overlay" id="timerOverlay">
+            <div class="timer-display">
+                <div class="timer-time" id="timerTime">00:00</div>
+                <div class="timer-label" id="timerLabel">Rest Timer</div>
+            </div>
+            <div class="timer-controls">
+                <button class="timer-btn start" id="timerStart">Start</button>
+                <button class="timer-btn stop" id="timerStop" style="display:none;">Stop</button>
+                <button class="timer-btn reset" id="timerReset">Reset</button>
+            </div>
+        </div>
+
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-view="workoutView">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M14 4h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+                <span>Workout</span>
+            </button>
+            <button class="nav-item" data-view="historyView">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>History</span>
+            </button>
+            <button class="nav-item" data-view="analyticsView">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                <span>Analytics</span>
+            </button>
+            <button class="nav-item" data-view="settingsView">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>Settings</span>
+            </button>
+        </nav>
+
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal">
+                <h2 id="modalTitle">Confirm</h2>
+                <p id="modalText">Are you sure?</p>
+                <div class="modal-actions">
+                    <button class="cancel" id="modalCancel">Cancel</button>
+                    <button class="confirm" id="modalConfirm">Confirm</button>
+                </div>
+            </div>
+        </div>
+        <div class="toast-container" id="toastContainer"></div>
+    </div>
+
+<script>
+// ==================== PROGRAM DATA ====================
+const PROGRAM = {
+    Monday: {
+        name: "Horizontal Push + Shoulders",
+        exercises: [
+            { id: "mon_1", name: "Incline Barbell Bench Press", sets: 4, reps: "6-8", rest: 120, purpose: "Upper chest fullness", alternatives: ["Incline Dumbbell Press", "Machine Incline Press", "Cable Incline Press"], category: "Chest" },
+            { id: "mon_2", name: "Dumbbell Bench Press (Flat)", sets: 3, reps: "8-10", rest: 90, purpose: "Full chest development", alternatives: ["Smith Machine Bench Press", "Leverage Chest Press"], category: "Chest" },
+            { id: "mon_3", name: "Low Cable Chest Flyes", sets: 3, reps: "10-12", rest: 60, purpose: "Chest striations", alternatives: ["Machine Chest Flyes", "Incline Cable Flyes", "Pec Deck Machine"], category: "Chest" },
+            { id: "mon_4", name: "Barbell Overhead Press", sets: 4, reps: "6-8", rest: 120, purpose: "Shoulder width", alternatives: ["Dumbbell Shoulder Press", "Machine Shoulder Press", "Smith Machine OHP"], category: "Shoulders" },
+            { id: "mon_5", name: "Dumbbell Lateral Raises", sets: 3, reps: "12-15", rest: 60, purpose: "Shoulder width", alternatives: ["Cable Lateral Raises", "Machine Lateral Raises"], category: "Shoulders" },
+            { id: "mon_6", name: "Cable Lateral Raises", sets: 2, reps: "12-15", rest: 60, purpose: "Shoulder depth", alternatives: ["Machine Lateral Raises", "Smith Machine Lateral Raises"], category: "Shoulders" },
+            { id: "mon_7", name: "Machine Chest Press", sets: 2, reps: "10-12", rest: 75, purpose: "Chest volume", alternatives: ["Leverage Chest Press", "Smith Machine Bench Press"], category: "Chest" },
+            { id: "mon_8", name: "Dumbbell Front Raises", sets: 2, reps: "10-12", rest: 60, purpose: "Front shoulder", alternatives: ["Cable Front Raises", "Machine Front Raises"], category: "Shoulders" }
+        ]
+    },
+    Tuesday: {
+        name: "Vertical Pull (Heavy Back)",
+        exercises: [
+            { id: "tue_1", name: "Weighted Pullups", sets: 4, reps: "6-8", rest: 120, purpose: "Lat width", alternatives: ["Assisted Pullup Machine", "Lat Pulldown", "Weighted Pullup Machine"], category: "Back" },
+            { id: "tue_2", name: "Barbell Bent-Over Row", sets: 4, reps: "6-8", rest: 120, purpose: "Back thickness", alternatives: ["Dumbbell Bent-Over Row", "Lever Row Machine", "T-Bar Row"], category: "Back" },
+            { id: "tue_3", name: "Wide-Grip Lat Pulldown", sets: 3, reps: "8-10", rest: 90, purpose: "Lat width", alternatives: ["Machine Pulldown", "Lever Pulldown"], category: "Back" },
+            { id: "tue_4", name: "Single-Arm Dumbbell Row", sets: 3, reps: "8-10", rest: 75, purpose: "Symmetry + range", alternatives: ["Landmine Row", "Machine Row", "Cable Row"], category: "Back" },
+            { id: "tue_5", name: "Face Pulls", sets: 3, reps: "15-20", rest: 60, purpose: "Rear delt + health", alternatives: ["Machine Rear Delt Fly", "Dumbbell Reverse Flyes", "Cable Rear Delt Fly"], category: "Shoulders" },
+            { id: "tue_6", name: "Chest-Supported T-Bar Row", sets: 2, reps: "10-12", rest: 75, purpose: "Back thickness", alternatives: ["Leverage Row Machine", "Smith Machine Row", "Dumbbell Row"], category: "Back" },
+            { id: "tue_7", name: "Straight-Arm Pulldown", sets: 2, reps: "10-12", rest: 60, purpose: "Lat isolation", alternatives: ["Cable Pullover", "Machine Pullover"], category: "Back" }
+        ]
+    },
+    Wednesday: {
+        name: "Legs + Core",
+        exercises: [
+            { id: "wed_1", name: "Barbell Back Squat", sets: 4, reps: "6-8", rest: 120, purpose: "Leg strength", alternatives: ["Leg Press", "Smith Machine Squat", "Goblet Squat"], category: "Legs" },
+            { id: "wed_2", name: "Romanian Deadlifts", sets: 3, reps: "6-8", rest: 90, purpose: "Hamstring/glute", alternatives: ["Trap Bar Deadlift", "Single-Leg RDL"], category: "Legs" },
+            { id: "wed_3", name: "Leg Press", sets: 3, reps: "8-10", rest: 90, purpose: "Leg volume", alternatives: ["Hack Squat", "V-Squat Machine", "Smith Machine Squat"], category: "Legs" },
+            { id: "wed_4", name: "Leg Extensions", sets: 3, reps: "10-12", rest: 75, purpose: "Quad definition", alternatives: ["Smith Machine Leg Extension", "Lever Leg Extension"], category: "Legs" },
+            { id: "wed_5", name: "Lying Leg Curls", sets: 3, reps: "10-12", rest: 75, purpose: "Hamstring definition", alternatives: ["Seated Leg Curl", "Standing Single-Leg Curl", "Cable Curl"], category: "Legs" },
+            { id: "wed_6", name: "Walking Lunges (Dumbbell)", sets: 2, reps: "10-12", rest: 75, purpose: "Unilateral/balance", alternatives: ["Smith Machine Lunges", "Barbell Walking Lunges", "Bulgarian Split Squats"], category: "Legs" },
+            { id: "wed_7", name: "Calf Raises (Machine)", sets: 3, reps: "12-15", rest: 60, purpose: "Calf development", alternatives: ["Free Weight Calf Raises", "Leg Press Calf Raises", "Smith Machine Calf Raises"], category: "Legs" },
+            { id: "wed_8", name: "Cable Crunches", sets: 3, reps: "12-15", rest: 60, purpose: "Ab thickness", alternatives: ["Machine Crunch", "Dumbbell Weighted Crunch", "Resistance Band Crunch"], category: "Core" },
+            { id: "wed_9", name: "Hanging Leg Raises", sets: 3, reps: "10-12", rest: 75, purpose: "Lower ab definition", alternatives: ["Knee Raises", "Captain's Chair", "Machine Leg Raises"], category: "Core" },
+            { id: "wed_10", name: "Pallof Press", sets: 2, reps: "12", rest: 60, purpose: "Core stability", alternatives: ["Landmine Press", "Machine Rotation"], category: "Core" }
+        ]
+    },
+    Thursday: {
+        name: "Horizontal Pull + Arms",
+        exercises: [
+            { id: "thu_1", name: "Lever Row Machine", sets: 4, reps: "8-10", rest: 90, purpose: "Back thickness", alternatives: ["Smith Machine Row", "T-Bar Row", "Landmine Row"], category: "Back" },
+            { id: "thu_2", name: "Single-Arm Cable Row", sets: 3, reps: "10-12", rest: 75, purpose: "Back symmetry", alternatives: ["Single-Arm Dumbbell Row", "Machine Single-Arm Row"], category: "Back" },
+            { id: "thu_3", name: "Incline Dumbbell Curls", sets: 3, reps: "8-10", rest: 75, purpose: "Bicep peak", alternatives: ["Incline Cable Curl", "Machine Curl"], category: "Arms" },
+            { id: "thu_4", name: "Barbell Curl", sets: 3, reps: "8-10", rest: 90, purpose: "Bicep mass", alternatives: ["Dumbbell Curls", "EZ-Bar Curls", "Cable Curls"], category: "Arms" },
+            { id: "thu_5", name: "Dumbbell Curls", sets: 2, reps: "10-12", rest: 75, purpose: "Bicep volume", alternatives: ["Hammer Curls", "Cable Curls", "Machine Curls"], category: "Arms" },
+            { id: "thu_6", name: "Tricep Rope Pushdowns", sets: 3, reps: "12-15", rest: 60, purpose: "Tricep definition", alternatives: ["V-Bar Pushdown", "Straight Bar Pushdown", "Machine Tricep Extension"], category: "Arms" },
+            { id: "thu_7", name: "Overhead Tricep Extension", sets: 2, reps: "10-12", rest: 75, purpose: "Tricep long head", alternatives: ["Cable Overhead Extension", "Machine Tricep Extension"], category: "Arms" },
+            { id: "thu_8", name: "Dips (Tricep Emphasis)", sets: 2, reps: "8-10", rest: 90, purpose: "Tricep mass", alternatives: ["Bench Dips", "Machine Dips", "Assisted Dip Machine"], category: "Arms" },
+            { id: "thu_9", name: "Hammer Curls", sets: 2, reps: "12-15", rest: 60, purpose: "Arm fullness", alternatives: ["Machine Hammer Curls", "Cable Hammer Curls"], category: "Arms" }
+        ]
+    },
+    Friday: {
+        name: "Vertical Push + Shoulders",
+        exercises: [
+            { id: "fri_1", name: "Barbell Overhead Press (Heavy)", sets: 4, reps: "6-8", rest: 120, purpose: "Shoulder height", alternatives: ["Dumbbell Shoulder Press", "Machine Shoulder Press", "Smith Machine OHP"], category: "Shoulders" },
+            { id: "fri_2", name: "Incline Barbell Bench Press", sets: 3, reps: "8-10", rest: 90, purpose: "Upper chest", alternatives: ["Incline Dumbbell Press", "Machine Incline Press"], category: "Chest" },
+            { id: "fri_3", name: "Machine Shoulder Press", sets: 3, reps: "10-12", rest: 75, purpose: "Shoulder volume", alternatives: ["Plate-Loaded Shoulder Press", "Smith Machine OHP"], category: "Shoulders" },
+            { id: "fri_4", name: "Dumbbell Lateral Raises", sets: 3, reps: "12-15", rest: 60, purpose: "Shoulder width", alternatives: ["Cable Lateral Raises", "Machine Lateral Raises"], category: "Shoulders" },
+            { id: "fri_5", name: "Reverse Pec Deck", sets: 3, reps: "12-15", rest: 60, purpose: "Rear delts", alternatives: ["Cable Rear Delt Fly", "Dumbbell Reverse Flyes"], category: "Shoulders" },
+            { id: "fri_6", name: "Upright Rows", sets: 3, reps: "8-10", rest: 75, purpose: "Traps/upper shoulder", alternatives: ["Dumbbell Upright Rows", "Cable Upright Rows"], category: "Shoulders" },
+            { id: "fri_7", name: "Incline Cable Flyes", sets: 2, reps: "12-15", rest: 60, purpose: "Upper chest finisher", alternatives: ["Incline Dumbbell Flyes", "Machine Flyes"], category: "Chest" },
+            { id: "fri_8", name: "Plate-Loaded Shoulder Press", sets: 2, reps: "10-12", rest: 75, purpose: "Shoulder volume", alternatives: ["Machine Shoulder Press", "Dumbbell Shoulder Press"], category: "Shoulders" }
+        ]
+    },
+    Saturday: {
+        name: "Arms + Core Finisher",
+        exercises: [
+            { id: "sat_1", name: "EZ-Bar Curls (Heavy)", sets: 3, reps: "6-8", rest: 90, purpose: "Bicep mass", alternatives: ["Barbell Curls", "Dumbbell Curls", "Cable Curls"], category: "Arms" },
+            { id: "sat_2", name: "Machine Curl", sets: 3, reps: "10-12", rest: 75, purpose: "Bicep isolation", alternatives: ["Cable Curls", "Preacher Curls"], category: "Arms" },
+            { id: "sat_3", name: "Dumbbell Preacher Curls", sets: 3, reps: "8-10", rest: 75, purpose: "Bicep peak", alternatives: ["Machine Preacher Curls", "Cable Preacher Curls"], category: "Arms" },
+            { id: "sat_4", name: "Tricep Dips (Heavy)", sets: 3, reps: "6-8", rest: 90, purpose: "Tricep mass", alternatives: ["Bench Dips", "Machine Dips", "Assisted Dip Machine"], category: "Arms" },
+            { id: "sat_5", name: "Cable Kickbacks", sets: 3, reps: "12-15", rest: 60, purpose: "Tricep definition", alternatives: ["Dumbbell Kickbacks", "Machine Tricep Extension"], category: "Arms" },
+            { id: "sat_6", name: "Overhead Cable Curl", sets: 2, reps: "12-15", rest: 60, purpose: "Bicep angle", alternatives: ["Overhead Dumbbell Curl", "Machine Curl"], category: "Arms" },
+            { id: "sat_7", name: "Rope Overhead Tricep Extension", sets: 2, reps: "12-15", rest: 60, purpose: "Tricep finisher", alternatives: ["Dumbbell Overhead Extension", "Machine Extension"], category: "Arms" },
+            { id: "sat_8", name: "Ab Wheel Rollouts", sets: 3, reps: "10-15", rest: 75, purpose: "Ab thickness", alternatives: ["Machine Ab Roller", "Resistance Band Rollout", "Cable Crunch"], category: "Core" },
+            { id: "sat_9", name: "Hanging L-Sit Hold", sets: 3, reps: "15-30s", rest: 75, purpose: "Lower ab definition", alternatives: ["Captain's Chair L-Sit", "Machine L-Sit Hold"], category: "Core" },
+            { id: "sat_10", name: "Suitcase Carries", sets: 2, reps: "40m", rest: 60, purpose: "Core stability", alternatives: ["Single-Arm Dumbbell Walks", "Farmer's Carry"], category: "Core" },
+            { id: "sat_11", name: "Machine Crunches", sets: 2, reps: "15-20", rest: 60, purpose: "Final ab definition", alternatives: ["Cable Crunches", "Weighted Crunches"], category: "Core" }
+        ]
+    },
+    Sunday: {
+        name: "Complete Rest",
+        exercises: []
+    }
+};
+
+const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+// ==================== STATE ====================
+let currentDate = new Date();
+let currentDay = DAYS[currentDate.getDay()];
+let activeTimers = {};
+let settings = { autosave: true, sound: true, vibrate: false, darkMode: true };
+
+// ==================== STORAGE ====================
+function loadData() {
+    try { const data = localStorage.getItem('aesthetic_tracker_data'); return data ? JSON.parse(data) : {}; }
+    catch(e) { return {}; }
+}
+
+function saveData(data) {
+    localStorage.setItem('aesthetic_tracker_data', JSON.stringify(data));
+}
+
+function getDateKey(date) {
+    return date.toISOString().split('T')[0];
+}
+
+function getDayData(date) {
+    const data = loadData();
+    const key = getDateKey(date);
+    if (!data[key]) {
+        data[key] = { day: DAYS[date.getDay()], exercises: {}, startTime: null, endTime: null, notes: "" };
+    }
+    return data[key];
+}
+
+function saveDayData(date, dayData) {
+    const data = loadData();
+    data[getDateKey(date)] = dayData;
+    saveData(data);
+}
+
+// ==================== UI HELPERS ====================
+function $(id) { return document.getElementById(id); }
+
+function showToast(message) {
+    const container = $('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+function formatTime(seconds) {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return m + ':' + s;
+}
+
+function formatDate(date) {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function formatDayName(date) {
+    return date.toLocaleDateString('en-US', { weekday: 'long' });
+}
+
+// ==================== RENDER ====================
+function renderDaySelector() {
+    const container = $('daySelector');
+    container.innerHTML = '';
+    DAYS.forEach((day, i) => {
+        const pill = document.createElement('button');
+        pill.className = 'day-pill ' + (day === currentDay ? 'active' : '');
+        pill.textContent = day.slice(0, 3);
+        if (day === 'Sunday') {
+            const badge = document.createElement('span');
+            badge.className = 'rest-badge';
+            badge.textContent = 'R';
+            pill.appendChild(badge);
+        }
+        pill.addEventListener('click', () => {
+            const diff = i - currentDate.getDay();
+            currentDate.setDate(currentDate.getDate() + diff);
+            currentDay = day;
+            renderAll();
+        });
+        container.appendChild(pill);
+    });
+}
+
+function renderHeader() {
+    $('dayName').textContent = formatDayName(currentDate);
+    $('dateFull').textContent = formatDate(currentDate);
+}
+
+function renderStats() {
+    const dayData = getDayData(currentDate);
+    const program = PROGRAM[currentDay];
+    let setsDone = 0, totalVolume = 0, totalSets = 0;
+
+    if (program && program.exercises) {
+        program.exercises.forEach(ex => {
+            totalSets += ex.sets;
+            const exData = dayData.exercises[ex.id];
+            if (exData && exData.sets) {
+                exData.sets.forEach(set => {
+                    if (set.done) {
+                        setsDone++;
+                        const weight = parseFloat(set.weight) || 0;
+                        const reps = parseFloat(set.reps) || 0;
+                        totalVolume += weight * reps;
+                    }
+                });
+            }
+        });
+    }
+
+    $('statSets').textContent = setsDone;
+    $('statVolume').textContent = Math.round(totalVolume).toLocaleString();
+
+    let minutes = 0;
+    if (dayData.startTime) {
+        const end = dayData.endTime ? new Date(dayData.endTime) : new Date();
+        const start = new Date(dayData.startTime);
+        minutes = Math.round((end - start) / 60000);
+    }
+    $('statTime').textContent = minutes;
+
+    const percent = totalSets > 0 ? Math.round((setsDone / totalSets) * 100) : 0;
+    const circumference = 2 * Math.PI * 72;
+    const offset = circumference - (percent / 100) * circumference;
+    $('progressRing').style.strokeDashoffset = offset;
+    $('progressPercent').textContent = percent + '%';
+}
+
+function renderExercises() {
+    const container = $('exerciseList');
+    const program = PROGRAM[currentDay];
+    const dayData = getDayData(currentDate);
+
+    if (!program || !program.exercises || program.exercises.length === 0) {
+        container.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg><p>Rest day! Take time to recover.</p></div>';
+        $('exerciseCount').textContent = 'Rest Day';
+        return;
+    }
+
+    $('exerciseCount').textContent = program.exercises.length + ' exercises';
+    container.innerHTML = '';
+
+    program.exercises.forEach((ex) => {
+        const exData = dayData.exercises[ex.id] || { sets: [], completed: false, altExercise: null, notes: "" };
+        const allSetsDone = exData.sets.length === ex.sets && exData.sets.every(s => s.done);
+        const isResting = activeTimers[ex.id] && activeTimers[ex.id].running;
+        const altName = exData.altExercise || ex.name;
+
+        const card = document.createElement('div');
+        card.className = 'exercise-card ' + (allSetsDone ? 'completed ' : '') + (isResting ? 'resting' : '');
+        card.id = 'card_' + ex.id;
+
+        card.innerHTML = `
+            <div class="exercise-header" onclick="toggleDetails('${ex.id}')">
+                <div class="exercise-checkbox ${allSetsDone ? 'checked' : ''}" onclick="event.stopPropagation(); toggleExerciseComplete('${ex.id}')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div class="exercise-info">
+                    <div class="exercise-name">${altName}</div>
+                    <div class="exercise-meta">
+                        <span class="meta-tag highlight">${ex.sets} sets</span>
+                        <span class="meta-tag">${ex.reps} reps</span>
+                        <span class="meta-tag">${ex.rest}s rest</span>
+                        <span class="meta-tag">${ex.category}</span>
+                    </div>
+                </div>
+                <div class="exercise-actions">
+                    <button class="action-btn timer-btn ${isResting ? 'active' : ''}" onclick="event.stopPropagation(); toggleTimer('${ex.id}', ${ex.rest})" title="Rest Timer">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        ${isResting ? '<span class="timer-badge">' + formatTime(activeTimers[ex.id].remaining) + '</span>' : ''}
+                    </button>
+                    <button class="action-btn" onclick="event.stopPropagation(); toggleDetails('${ex.id}')" title="Expand">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="exercise-details" id="details_${ex.id}">
+                <div class="details-inner">
+                    <div class="quick-controls">
+                        <button class="quick-btn" onclick="fillAllSets('${ex.id}', ${ex.sets})">Auto-fill Sets</button>
+                        <button class="quick-btn" onclick="clearExercise('${ex.id}')">Clear</button>
+                        <button class="quick-btn primary" onclick="startWorkout()">${dayData.startTime ? 'Resume' : 'Start Workout'}</button>
+                    </div>
+                    <div class="sets-header">
+                        <span>Set</span><span>Weight (kg)</span><span>Reps</span><span>Goal</span><span>Done</span>
+                    </div>
+                    <div id="sets_${ex.id}"></div>
+                    <div class="alt-section">
+                        <div class="alt-label">Alternative Exercise</div>
+                        <select class="alt-select" onchange="setAlternative('${ex.id}', this.value)">
+                            <option value="">${ex.name} (default)</option>
+                            ${ex.alternatives.map(alt => '<option value="' + alt + '" ' + (exData.altExercise === alt ? 'selected' : '') + '>' + alt + '</option>').join('')}
+                        </select>
+                    </div>
+                    <div class="notes-area">
+                        <textarea placeholder="Notes: form cues, how it felt, RPE..." onblur="saveNotes('${ex.id}', this.value)">${exData.notes || ''}</textarea>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        container.appendChild(card);
+        renderSets(ex.id, ex.sets, ex.reps);
+    });
+}
+
+function renderSets(exId, totalSets, goalReps) {
+    const container = $('sets_' + exId);
+    if (!container) return;
+    const dayData = getDayData(currentDate);
+    const exData = dayData.exercises[exId] || { sets: [] };
+
+    container.innerHTML = '';
+    for (let i = 0; i < totalSets; i++) {
+        const setData = exData.sets[i] || { weight: '', reps: '', done: false };
+        const row = document.createElement('div');
+        row.className = 'set-row';
+        row.innerHTML = `
+            <div class="set-number ${setData.done ? 'done' : ''}">${i + 1}</div>
+            <div class="input-group">
+                <input type="number" class="num-input" placeholder="0" value="${setData.weight || ''}" 
+                    onchange="updateSet('${exId}', ${i}, 'weight', this.value)"
+                    onfocus="this.select()">
+            </div>
+            <div class="input-group">
+                <input type="number" class="num-input" placeholder="0" value="${setData.reps || ''}" 
+                    onchange="updateSet('${exId}', ${i}, 'reps', this.value)"
+                    onfocus="this.select()">
+            </div>
+            <div class="input-group">
+                <input type="text" class="num-input" value="${goalReps}" readonly style="color: var(--text-dim); background: var(--bg-tertiary);">
+            </div>
+            <div class="set-check ${setData.done ? 'checked' : ''}" onclick="toggleSet('${exId}', ${i})">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+        `;
+        container.appendChild(row);
+    }
+}
+
+// ==================== ACTIONS ====================
+function toggleDetails(exId) {
+    const details = $('details_' + exId);
+    details.classList.toggle('open');
+}
+
+function toggleExerciseComplete(exId) {
+    const dayData = getDayData(currentDate);
+    const exData = dayData.exercises[exId] || { sets: [] };
+    const program = PROGRAM[currentDay];
+    const ex = program.exercises.find(e => e.id === exId);
+
+    const allDone = exData.sets.length === ex.sets && exData.sets.every(s => s.done);
+
+    if (allDone) {
+        exData.sets.forEach(s => s.done = false);
+    } else {
+        for (let i = 0; i < ex.sets; i++) {
+            if (!exData.sets[i]) exData.sets[i] = { weight: '', reps: '', done: false };
+            exData.sets[i].done = true;
+        }
+    }
+
+    dayData.exercises[exId] = exData;
+    saveDayData(currentDate, dayData);
+    renderAll();
+}
+
+function updateSet(exId, setIdx, field, value) {
+    const dayData = getDayData(currentDate);
+    if (!dayData.exercises[exId]) dayData.exercises[exId] = { sets: [] };
+    if (!dayData.exercises[exId].sets[setIdx]) dayData.exercises[exId].sets[setIdx] = { weight: '', reps: '', done: false };
+    dayData.exercises[exId].sets[setIdx][field] = value;
+    saveDayData(currentDate, dayData);
+    if (settings.autosave) showToast('Set saved');
+}
+
+function toggleSet(exId, setIdx) {
+    const dayData = getDayData(currentDate);
+    if (!dayData.exercises[exId]) dayData.exercises[exId] = { sets: [] };
+    if (!dayData.exercises[exId].sets[setIdx]) dayData.exercises[exId].sets[setIdx] = { weight: '', reps: '', done: false };
+    dayData.exercises[exId].sets[setIdx].done = !dayData.exercises[exId].sets[setIdx].done;
+    saveDayData(currentDate, dayData);
+    renderAll();
+
+    if (dayData.exercises[exId].sets[setIdx].done) {
+        const program = PROGRAM[currentDay];
+        const ex = program.exercises.find(e => e.id === exId);
+        startRestTimer(exId, ex.rest);
+    }
+}
+
+function fillAllSets(exId, totalSets) {
+    const dayData = getDayData(currentDate);
+    if (!dayData.exercises[exId]) dayData.exercises[exId] = { sets: [] };
+    const exData = dayData.exercises[exId];
+
+    let lastWeight = '';
+    for (let i = exData.sets.length - 1; i >= 0; i--) {
+        if (exData.sets[i] && exData.sets[i].weight) { lastWeight = exData.sets[i].weight; break; }
+    }
+
+    const weight = prompt('Enter weight for all sets (kg):', lastWeight || '');
+    if (weight === null) return;
+    const reps = prompt('Enter reps for all sets:', '');
+    if (reps === null) return;
+
+    for (let i = 0; i < totalSets; i++) {
+        if (!exData.sets[i]) exData.sets[i] = { weight: '', reps: '', done: false };
+        if (weight) exData.sets[i].weight = weight;
+        if (reps) exData.sets[i].reps = reps;
+    }
+
+    saveDayData(currentDate, dayData);
+    renderAll();
+    showToast('All sets filled');
+}
+
+function clearExercise(exId) {
+    const dayData = getDayData(currentDate);
+    dayData.exercises[exId] = { sets: [], completed: false, altExercise: null, notes: "" };
+    saveDayData(currentDate, dayData);
+    renderAll();
+    showToast('Exercise cleared');
+}
+
+function setAlternative(exId, altName) {
+    const dayData = getDayData(currentDate);
+    if (!dayData.exercises[exId]) dayData.exercises[exId] = {};
+    dayData.exercises[exId].altExercise = altName || null;
+    saveDayData(currentDate, dayData);
+    renderAll();
+    showToast(altName ? 'Using: ' + altName : 'Using default exercise');
+}
+
+function saveNotes(exId, notes) {
+    const dayData = getDayData(currentDate);
+    if (!dayData.exercises[exId]) dayData.exercises[exId] = {};
+    dayData.exercises[exId].notes = notes;
+    saveDayData(currentDate, dayData);
+}
+
+function startWorkout() {
+    const dayData = getDayData(currentDate);
+    if (!dayData.startTime) {
+        dayData.startTime = new Date().toISOString();
+        saveDayData(currentDate, dayData);
+        showToast('Workout started!');
+    }
+    renderAll();
+}
+
+function endWorkout() {
+    const dayData = getDayData(currentDate);
+    dayData.endTime = new Date().toISOString();
+    saveDayData(currentDate, dayData);
+    showToast('Workout complete!');
+    renderAll();
+}
+
+// ==================== TIMER ====================
+let activeTimerId = null;
+
+function toggleTimer(exId, restSeconds) {
+    if (activeTimers[exId] && activeTimers[exId].running) {
+        stopRestTimer(exId);
+    } else {
+        startRestTimer(exId, restSeconds);
+    }
+}
+
+function startRestTimer(exId, restSeconds) {
+    if (activeTimers[exId]) clearInterval(activeTimers[exId].interval);
+
+    const timer = {
+        remaining: restSeconds,
+        running: true,
+        interval: setInterval(() => {
+            timer.remaining--;
+            if (timer.remaining <= 0) {
+                clearInterval(timer.interval);
+                timer.running = false;
+                timer.remaining = 0;
+                onTimerComplete(exId);
+            }
+            updateTimerUI(exId);
+        }, 1000)
+    };
+
+    activeTimers[exId] = timer;
+    activeTimerId = exId;
+    updateTimerUI(exId);
+    showTimerOverlay(restSeconds);
+}
+
+function stopRestTimer(exId) {
+    if (activeTimers[exId]) {
+        clearInterval(activeTimers[exId].interval);
+        activeTimers[exId].running = false;
+        updateTimerUI(exId);
+    }
+}
+
+function updateTimerUI(exId) {
+    const timer = activeTimers[exId];
+    if (!timer) return;
+
+    const btn = document.querySelector('#card_' + exId + ' .timer-btn');
+    if (btn) {
+        if (timer.running) {
+            btn.classList.add('active');
+            let badge = btn.querySelector('.timer-badge');
+            if (!badge) {
+                badge = document.createElement('span');
+                badge.className = 'timer-badge';
+                btn.appendChild(badge);
+            }
+            badge.textContent = formatTime(timer.remaining);
+        } else {
+            btn.classList.remove('active');
+            const badge = btn.querySelector('.timer-badge');
+            if (badge) badge.remove();
+        }
+    }
+
+    const overlay = $('timerOverlay');
+    if (overlay.classList.contains('active')) {
+        $('timerTime').textContent = formatTime(timer.remaining);
+        $('timerLabel').textContent = timer.running ? 'Rest Timer Running' : 'Rest Timer Paused';
+        $('timerStart').style.display = timer.running ? 'none' : 'inline-block';
+        $('timerStop').style.display = timer.running ? 'inline-block' : 'none';
+    }
+}
+
+function onTimerComplete(exId) {
+    showToast('Rest complete! Next set ready');
+    if (settings.vibrate && navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    renderAll();
+}
+
+function showTimerOverlay(seconds) {
+    $('timerOverlay').classList.add('active');
+    $('timerTime').textContent = formatTime(seconds);
+    $('timerLabel').textContent = 'Rest Timer';
+    $('timerStart').style.display = 'none';
+    $('timerStop').style.display = 'inline-block';
+}
+
+function hideTimerOverlay() {
+    $('timerOverlay').classList.remove('active');
+}
+
+// Timer overlay buttons
+$('timerStart').addEventListener('click', () => {
+    if (activeTimerId) {
+        const program = PROGRAM[currentDay];
+        const ex = program.exercises.find(e => e.id === activeTimerId);
+        startRestTimer(activeTimerId, ex.rest);
+    }
+});
+
+$('timerStop').addEventListener('click', () => {
+    if (activeTimerId) stopRestTimer(activeTimerId);
+});
+
+$('timerReset').addEventListener('click', () => {
+    if (activeTimerId) {
+        const program = PROGRAM[currentDay];
+        const ex = program.exercises.find(e => e.id === activeTimerId);
+        if (activeTimers[activeTimerId]) clearInterval(activeTimers[activeTimerId].interval);
+        activeTimers[activeTimerId] = null;
+        startRestTimer(activeTimerId, ex.rest);
+    }
+});
+
+// ==================== NAVIGATION ====================
+document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+        const viewId = item.dataset.view;
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        $(viewId).classList.add('active');
+        item.classList.add('active');
+        if (viewId === 'historyView') renderHistory();
+        if (viewId === 'analyticsView') renderAnalytics();
+    });
+});
+
+// Date navigation
+$('prevDate').addEventListener('click', () => {
+    currentDate.setDate(currentDate.getDate() - 1);
+    currentDay = DAYS[currentDate.getDay()];
+    renderAll();
+});
+
+$('nextDate').addEventListener('click', () => {
+    currentDate.setDate(currentDate.getDate() + 1);
+    currentDay = DAYS[currentDate.getDay()];
+    renderAll();
+});
+
+// ==================== HISTORY ====================
+function renderHistory() {
+    const container = $('historyList');
+    const data = loadData();
+    const entries = Object.entries(data).sort((a, b) => b[0].localeCompare(a[0]));
+
+    if (entries.length === 0) {
+        container.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg><p>No workouts logged yet. Start training!</p></div>';
+        return;
+    }
+
+    container.innerHTML = '';
+    entries.forEach(([dateKey, dayData]) => {
+        let setsDone = 0, totalVolume = 0;
+        Object.values(dayData.exercises || {}).forEach(ex => {
+            if (ex.sets) {
+                ex.sets.forEach(set => {
+                    if (set.done) {
+                        setsDone++;
+                        totalVolume += (parseFloat(set.weight) || 0) * (parseFloat(set.reps) || 0);
+                    }
+                });
+            }
+        });
+
+        if (setsDone === 0) return;
+
+        const date = new Date(dateKey + 'T00:00:00');
+        const card = document.createElement('div');
+        card.className = 'history-card';
+        card.innerHTML = `
+            <div class="history-date">${formatDate(date)}</div>
+            <div class="history-day">${dayData.day} - ${PROGRAM[dayData.day]?.name || 'Rest Day'}</div>
+            <div class="history-stats">
+                <div class="history-stat">
+                    <span class="history-stat-value">${setsDone}</span>
+                    <span class="history-stat-label">Sets</span>
+                </div>
+                <div class="history-stat">
+                    <span class="history-stat-value">${Math.round(totalVolume).toLocaleString()}</span>
+                    <span class="history-stat-label">Volume</span>
+                </div>
+                <div class="history-stat">
+                    <span class="history-stat-value">${dayData.startTime ? Math.round((new Date(dayData.endTime || Date.now()) - new Date(dayData.startTime)) / 60000) : 0}</span>
+                    <span class="history-stat-label">Minutes</span>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// ==================== ANALYTICS ====================
+function renderAnalytics() {
+    const data = loadData();
+    const entries = Object.entries(data).sort((a, b) => a[0].localeCompare(b[0]));
+
+    let totalWorkouts = 0, totalSets = 0, totalVolume = 0;
+    const weeklyData = {};
+
+    entries.forEach(([dateKey, dayData]) => {
+        let daySets = 0, dayVolume = 0;
+        Object.values(dayData.exercises || {}).forEach(ex => {
+            if (ex.sets) {
+                ex.sets.forEach(set => {
+                    if (set.done) {
+                        daySets++;
+                        dayVolume += (parseFloat(set.weight) || 0) * (parseFloat(set.reps) || 0);
+                    }
+                });
+            }
+        });
+
+        if (daySets > 0) {
+            totalWorkouts++;
+            totalSets += daySets;
+            totalVolume += dayVolume;
+
+            const week = getWeekNumber(new Date(dateKey + 'T00:00:00'));
+            if (!weeklyData[week]) weeklyData[week] = { volume: 0, sets: 0 };
+            weeklyData[week].volume += dayVolume;
+            weeklyData[week].sets += daySets;
+        }
+    });
+
+    $('totalWorkouts').textContent = totalWorkouts;
+    $('totalSets').textContent = totalSets;
+    $('totalVolume').textContent = Math.round(totalVolume / 1000) + 'k';
+
+    // Volume chart
+    const volumeChart = $('volumeChart');
+    const weeks = Object.keys(weeklyData).slice(-7);
+    const maxVolume = Math.max(...weeks.map(w => weeklyData[w].volume), 1);
+
+    volumeChart.innerHTML = '';
+    weeks.forEach(week => {
+        const bar = document.createElement('div');
+        bar.className = 'chart-bar';
+        bar.style.height = (weeklyData[week].volume / maxVolume * 100) + '%';
+        bar.innerHTML = `
+            <span class="chart-bar-value">${Math.round(weeklyData[week].volume / 1000)}k</span>
+            <span class="chart-bar-label">W${week.split('-')[1]}</span>
+        `;
+        volumeChart.appendChild(bar);
+    });
+
+    // Sets chart
+    const setsChart = $('setsChart');
+    const maxSets = Math.max(...weeks.map(w => weeklyData[w].sets), 1);
+
+    setsChart.innerHTML = '';
+    weeks.forEach(week => {
+        const bar = document.createElement('div');
+        bar.className = 'chart-bar';
+        bar.style.height = (weeklyData[week].sets / maxSets * 100) + '%';
+        bar.innerHTML = `
+            <span class="chart-bar-value">${weeklyData[week].sets}</span>
+            <span class="chart-bar-label">W${week.split('-')[1]}</span>
+        `;
+        setsChart.appendChild(bar);
+    });
+}
+
+function getWeekNumber(date) {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return d.getUTCFullYear() + '-' + Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+// ==================== SETTINGS ====================
+document.querySelectorAll('.toggle').forEach(toggle => {
+    toggle.addEventListener('click', () => {
+        toggle.classList.toggle('on');
+        const id = toggle.id;
+        if (id === 'autosaveToggle') settings.autosave = toggle.classList.contains('on');
+        if (id === 'soundToggle') settings.sound = toggle.classList.contains('on');
+        if (id === 'vibrateToggle') settings.vibrate = toggle.classList.contains('on');
+        if (id === 'darkToggle') settings.darkMode = toggle.classList.contains('on');
+        localStorage.setItem('aesthetic_tracker_settings', JSON.stringify(settings));
+    });
+});
+
+// Load settings
+const savedSettings = localStorage.getItem('aesthetic_tracker_settings');
+if (savedSettings) {
+    settings = JSON.parse(savedSettings);
+    $('autosaveToggle').classList.toggle('on', settings.autosave);
+    $('soundToggle').classList.toggle('on', settings.sound);
+    $('vibrateToggle').classList.toggle('on', settings.vibrate);
+    $('darkToggle').classList.toggle('on', settings.darkMode);
+}
+
+// ==================== EXPORT/IMPORT ====================
+$('exportBtn').addEventListener('click', () => {
+    const data = loadData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'aesthetic_tracker_backup_' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Data exported!');
+});
+
+$('importBtn').addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const data = JSON.parse(event.target.result);
+                saveData(data);
+                showToast('Data imported successfully!');
+                renderAll();
+            } catch (err) {
+                showToast('Invalid file format');
+            }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+});
+
+// ==================== CLEAR DATA ====================
+$('clearDataBtn').addEventListener('click', () => {
+    $('modalTitle').textContent = 'Clear All Data';
+    $('modalText').textContent = 'This will permanently delete all your workout history. This action cannot be undone.';
+    $('modalOverlay').classList.add('active');
+});
+
+$('modalCancel').addEventListener('click', () => {
+    $('modalOverlay').classList.remove('active');
+});
+
+$('modalConfirm').addEventListener('click', () => {
+    localStorage.removeItem('aesthetic_tracker_data');
+    $('modalOverlay').classList.remove('active');
+    showToast('All data cleared');
+    renderAll();
+});
+
+// ==================== MAIN RENDER ====================
+function renderAll() {
+    renderHeader();
+    renderDaySelector();
+    renderStats();
+    renderExercises();
+}
+
+// Initialize
+renderAll();
+</script>
+</body>
+</html>
